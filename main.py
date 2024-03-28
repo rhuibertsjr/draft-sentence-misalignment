@@ -1,9 +1,10 @@
 
 reference = "The cat sat on the mat at the door"
-recognized= "She rat the sat the mat at door aa"
+recognized= "She rat the sat the mat at door"
 
 reference_words = reference.split()
 recognized_words = recognized.split()
+
 
 def levenshtein_distance(word1, word2):
     # Create a matrix to store the distances
@@ -35,6 +36,12 @@ print(recognized)
 deletion = 0
 insertion = 0
 
+if len(reference_words) > len(recognized_words):
+    recognized_words.append("")
+
+aligned_reference_words = reference_words
+aligned_recognized_words = recognized_words
+
 for i, rec_word in enumerate(reference_words):
     edit_distance = levenshtein_distance(rec_word, recognized_words[i])
 
@@ -49,11 +56,22 @@ for i, rec_word in enumerate(reference_words):
             if edit_distance1 >= 3:
                 print(rec_word, recognized_words[i+1], edit_distance1)
                 deletion += 1
+                aligned_recognized_words.insert(i,"")
             else:
                 print(rec_word, recognized_words[i+1], edit_distance1)
                 insertion += 1
+                aligned_reference_words.insert(i,"")
                 
     print()
 
-print(deletion)
-print(insertion)
+print("Deletion:", deletion)
+print("Insertion:", insertion)
+
+for i in range(len(aligned_recognized_words) - 1, -1, -1):
+    if aligned_recognized_words[i] == "":
+        aligned_recognized_words.pop()  # Remove the empty string
+    else:
+        break  # Stop when a non-empty string is encountered
+
+print("Reference words:\t\t", aligned_reference_words)
+print("Aligned recognized words:\t", aligned_recognized_words)
