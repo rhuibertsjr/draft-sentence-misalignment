@@ -1,10 +1,9 @@
-
-reference = "The cat sat on the mat at the door"
-recognized= "She rat the sat the mat at door"
-
-reference_words = reference.split()
-recognized_words = recognized.split()
-
+### main.py: Human Machine Interface - Sentence alignment                       -
+##
+## Authors: rhuibertsjr
+## Date: 16 - 11 - 2023
+#
+import test
 
 def levenshtein_distance(word1, word2):
     # Create a matrix to store the distances
@@ -30,48 +29,72 @@ def levenshtein_distance(word1, word2):
     # The bottom-right cell of the matrix contains the Levenshtein distance
     return matrix[len(word1)][len(word2)]
 
-print(reference)
-print(recognized)
 
-deletion = 0
-insertion = 0
+def sentence_align(reference, recognised, threshold=3):
 
-if len(reference_words) > len(recognized_words):
-    recognized_words.append("")
+    reference_words  = reference.split()
+    recognised_words = recognised.split()
 
-aligned_reference_words = reference_words
-aligned_recognized_words = recognized_words
+    # rhjr: results
+    aligned_reference_words = reference_words
+    aligned_recognised_words = recognised_words
 
-for i, rec_word in enumerate(reference_words):
-    edit_distance = levenshtein_distance(rec_word, recognized_words[i])
+    # rhjr: temporary results
+    deletion = 0
+    insertion = 0
 
-    if i + 1 < len(recognized_words):
-        edit_distance1 = levenshtein_distance(rec_word, recognized_words[i+1])
+    # rhjr: fix lengths
+    while len(reference_words) > len(recognised_words):
+        recognised_words.append("")
 
-    if edit_distance < edit_distance1:
-        print(rec_word, recognized_words[i], edit_distance)
-    else:
-        if i + 1 < len(recognized_words):
+    for index, word in enumerate(reference_words):
+        edit_distance = levenshtein_distance(word, recognised_words[index])
 
-            if edit_distance1 >= 3:
-                print(rec_word, recognized_words[i+1], edit_distance1)
-                deletion += 1
-                aligned_recognized_words.insert(i,"")
-            else:
-                print(rec_word, recognized_words[i+1], edit_distance1)
-                insertion += 1
-                aligned_reference_words.insert(i,"")
-                
-    print()
+        # rhjr: check out of bounds
+        if index + 1 < len(recognised_words):
+            next_edit_distance = levenshtein_distance(
+                word, recognised_words[index + 1])
+        #end
 
-print("Deletion:", deletion)
-print("Insertion:", insertion)
+        if edit_distance < next_edit_distance:
+            #print(word, recognised_words[index], edit_distance)
+            continue
+        else:
+            if index + 1 < len(recognised_words):
+                if next_edit_distance >= threshold:
+                    aligned_recognised_words.insert(index, "")
+                    deletion += 1
+                else:
+                    aligned_reference_words.insert(index, "")
+                    insertion += 1
+                #end
+            #end
+        #end
+    #end
 
-for i in range(len(aligned_recognized_words) - 1, -1, -1):
-    if aligned_recognized_words[i] == "":
-        aligned_recognized_words.pop()  # Remove the empty string
-    else:
-        break  # Stop when a non-empty string is encountered
+    for index in range( len( aligned_recognised_words ) - 1, -1, -1):
+        if aligned_recognised_words[index] == "":
+            aligned_recognised_words.pop()  # rhjr: remove trailing words.
+        else:
+            break  
+        #end
+    #end
 
-print("Reference words:\t\t", aligned_reference_words)
-print("Aligned recognized words:\t", aligned_recognized_words)
+    return aligned_reference_words, aligned_recognised_words
+
+#end sentence_align():
+
+def tests_run():
+    assert(len(test.reference) == len(test.recognised))
+
+    for index, sentence in enumerate(test.reference):
+        aligned_reference_words, aligned_recognised_words = sentence_align(
+            sentence, test.recognised[index])
+
+        print("Reference words:\t\t\t", aligned_reference_words)
+        print("Aligned recognized words:\t", aligned_recognised_words)
+        print()
+
+#end tests_run():
+
+tests_run()
