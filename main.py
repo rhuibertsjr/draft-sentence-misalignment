@@ -52,8 +52,18 @@ def sentence_align(reference, recognised, threshold=3):
 
         # rhjr: check out of bounds
         if index + 1 < len(recognised_words):
-            next_edit_distance = levenshtein_distance(
+
+            next_edit_distance = 0
+
+            next_ref_edit_distance = levenshtein_distance(
+                recognised_words[index + 1], recognised_words[index])
+
+            next_rec_edit_distance = levenshtein_distance(
                 word, recognised_words[index + 1])
+
+            next_edit_distance = min(
+                next_ref_edit_distance, next_rec_edit_distance)
+
         #end
 
         if edit_distance < next_edit_distance:
