@@ -54,6 +54,9 @@ def sentence_align(reference, recognised, threshold=3):
         # rhjr: check out of bounds
         if index + 1 < len(recognised_words):
 
+            if recognised_words[index] == "":
+                continue
+
             next_ref_edit_distance = levenshtein_distance(
                 recognised_words[index + 1], recognised_words[index])
 
@@ -101,7 +104,7 @@ def tests_run():
         aligned_reference_words, aligned_recognised_words = sentence_align(
             sentence, test.recognised[index])
 
-        print("Reference words:\t\t\t", aligned_reference_words)
+        print("Reference words:\t\t\t\t\t", aligned_reference_words)
         print("Aligned recognized words:\t", aligned_recognised_words)
         print()
 
