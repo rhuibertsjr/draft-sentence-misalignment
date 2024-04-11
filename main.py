@@ -69,7 +69,7 @@ def sentence_align(reference, recognised, threshold=3):
 
         #end
 
-        if edit_distance < next_edit_distance:
+        if edit_distance <= next_edit_distance:
             #print(word, recognised_words[index], edit_distance)
             continue
         else:
