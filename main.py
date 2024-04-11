@@ -35,19 +35,21 @@ def sentence_align(reference, recognised, threshold=3):
     reference_words  = reference.split()
     recognised_words = recognised.split()
 
-    # rhjr: results
-    aligned_reference_words = reference_words
-    aligned_recognised_words = recognised_words
-
     # rhjr: temporary results
     deletion = 0
     insertion = 0
 
     # rhjr: fix lengths
-    while len(reference_words) > len(recognised_words):
-        recognised_words.append("")
+    while len(reference_words) < len(recognised_words):
+        reference_words.append('')
+    while len(recognised_words) < len(reference_words):
+        recognised_words.append('')
 
     for index, word in enumerate(reference_words):
+
+        if (len(recognised_words) <= index):
+            break
+
         edit_distance = levenshtein_distance(word, recognised_words[index])
         next_edit_distance = 0
 
@@ -58,7 +60,7 @@ def sentence_align(reference, recognised, threshold=3):
                 continue
 
             next_ref_edit_distance = levenshtein_distance(
-                recognised_words[index + 1], recognised_words[index])
+                recognised_words[index + 1], word)
 
             next_rec_edit_distance = levenshtein_distance(
                 word, recognised_words[index + 1])
@@ -69,33 +71,36 @@ def sentence_align(reference, recognised, threshold=3):
 
         #end
 
-        if edit_distance <= next_edit_distance:
+        if edit_distance < next_edit_distance:
             #print(word, recognised_words[index], edit_distance)
             continue
         else:
             if index + 1 < len(recognised_words):
                 if next_edit_distance >= threshold:
-                    aligned_recognised_words.insert(index, "")
+                    recognised_words.insert(index, "")
                     deletion += 1
                 else:
-                    aligned_reference_words.insert(index, "")
+                    reference_words.insert(index, "")
                     insertion += 1
-                #end
-            #end
-        #end
-    #end
+                    #end
+                    #end
+                    #end
+                    #end
 
-    for index in range( len( aligned_recognised_words ) - 1, -1, -1):
-        if aligned_recognised_words[index] == "":
-            aligned_recognised_words.pop()  # rhjr: remove trailing words.
-        else:
-            break  
-        #end
-    #end
+    remove_trailing_empty_words(reference_words)
+    remove_trailing_empty_words(recognised_words)
 
-    return aligned_reference_words, aligned_recognised_words
+    return reference_words, recognised_words
 
 #end sentence_align():
+
+def remove_trailing_empty_words(words):
+    for index in range(len(words) - 1, -1, -1):
+        if words[index] == "":
+            words.pop()
+        else:
+            break
+#end remove_trailing_empty_words():
 
 def tests_run():
     assert(len(test.reference) == len(test.recognised))
